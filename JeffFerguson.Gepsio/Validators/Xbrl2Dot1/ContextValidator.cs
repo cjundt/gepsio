@@ -1,4 +1,6 @@
-﻿using JeffFerguson.Gepsio.Xml.Interfaces;
+﻿using System.Linq;
+
+using JeffFerguson.Gepsio.Xml.Interfaces;
 using JeffFerguson.Gepsio.Xsd;
 using System.Text;
 
@@ -13,12 +15,14 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
     /// </remarks>
     internal class ContextValidator
     {
-        private XbrlFragment validatingFragment;
+        private IXbrlFragment validatingFragment;
         private Context validatingContext;
+		private IValidationErrorsList thisValidationErrors;
 
-        internal void Validate(XbrlFragment fragment, Context context)
+		internal void Validate(IXbrlFragment fragment, Context context, IValidationErrorsList validationErrors)
         {
-            this.validatingFragment = fragment;
+			this.thisValidationErrors = validationErrors;
+			this.validatingFragment = fragment;
             this.validatingContext = context;
             ValidateContextPeriod();
             ValidateScenario();
@@ -34,7 +38,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     string MessageFormat = AssemblyResources.GetName("PeriodEndDateLessThanPeriodStartDate");
                     var MessageBuilder = new StringBuilder();
                     MessageBuilder.AppendFormat(MessageFormat, validatingContext.Id);
-                    this.validatingFragment.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
+                    this.thisValidationErrors.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
                 }
             }
         }
@@ -55,7 +59,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 string MessageFormat = AssemblyResources.GetName("ScenarioNodeUsingXBRLNamespace");
                 StringBuilder MessageBuilder = new StringBuilder();
                 MessageBuilder.AppendFormat(MessageFormat, validatingContext.Id, ScenarioNode.Name);
-                this.validatingFragment.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
+                this.thisValidationErrors.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
             }
             if (ScenarioNode.Prefix.Length > 0)
             {
@@ -70,7 +74,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                             string MessageFormat = AssemblyResources.GetName("ScenarioNodeUsingSubGroupInXBRLNamespace");
                             StringBuilder MessageBuilder = new StringBuilder();
                             MessageBuilder.AppendFormat(MessageFormat, validatingContext.Id, ScenarioNode.Name, NodeSchema.SchemaReferencePath);
-                            this.validatingFragment.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
+                            this.thisValidationErrors.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
                         }
                     }
                 }
@@ -104,7 +108,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 string MessageFormat = AssemblyResources.GetName("SegmentNodeUsingXBRLNamespace");
                 StringBuilder MessageBuilder = new StringBuilder();
                 MessageBuilder.AppendFormat(MessageFormat, validatingContext.Id, SegmentNode.Name);
-                this.validatingFragment.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
+                this.thisValidationErrors.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
             }
         }
 
@@ -123,7 +127,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                             string MessageFormat = AssemblyResources.GetName("SegmentNodeUsingSubGroupInXBRLNamespace");
                             StringBuilder MessageBuilder = new StringBuilder();
                             MessageBuilder.AppendFormat(MessageFormat, validatingContext.Id, SegmentNode.Name, NodeSchema.SchemaReferencePath);
-                            this.validatingFragment.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
+                            this.thisValidationErrors.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
                         }
                     }
                 }
@@ -135,9 +139,9 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
             var text = SegmentNode.InnerText;
             if (string.IsNullOrEmpty(text) == true)
                 return;
-            if (this.validatingFragment.Schemas.Count == 0)
-                return;
-            var segmentNodeType = this.validatingFragment.Schemas.GetNodeType(SegmentNode);
+			if(!this.validatingFragment.Taxonomy.IsDefined)
+				return;
+			var segmentNodeType = this.validatingFragment.Taxonomy.GetNodeType(SegmentNode);
             if (segmentNodeType == null)
                 return;
             if (segmentNodeType.CanConvert(text) == false)
@@ -145,7 +149,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 string MessageFormat = AssemblyResources.GetName("SegmentTextNotConvertable");
                 StringBuilder MessageBuilder = new StringBuilder();
                 MessageBuilder.AppendFormat(MessageFormat, text);
-                this.validatingFragment.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
+                this.thisValidationErrors.AddValidationError(new ContextValidationError(validatingContext, MessageBuilder.ToString()));
             }
         }
     }

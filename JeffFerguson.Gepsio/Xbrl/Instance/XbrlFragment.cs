@@ -44,7 +44,7 @@ namespace JeffFerguson.Gepsio
 	/// 4.1 of the XBRL 2.1 Specification.
 	/// </para>
 	/// </remarks>
-	public class XbrlFragment : IXbrlFragment, IValidationErrorsList {
+	public class XbrlFragment : IXbrlFragment, IValidationHandler {
 		private LinkbaseDocumentCollection thisLinkbaseDocuments;
 
 		/// <summary>
@@ -273,7 +273,7 @@ namespace JeffFerguson.Gepsio
 				return null;
 			if( Uri.Length == 0 )
 				return null;
-			return this.Schemas.GetSchemaFromTargetNamespace( Uri, this );
+			return this.Schemas.GetSchemaFromTargetNamespace( Uri, this, this.Document.Path );
 		}
 
 		/// <summary>
@@ -362,7 +362,7 @@ namespace JeffFerguson.Gepsio
 		}
 
 		private void ProcessSchemaNamespaceAndLocation( string schemaNamespace, string schemaLocation ) {
-			var newSchema = new XbrlSchema( this, schemaLocation, string.Empty );
+			var newSchema = new XbrlSchema( this.Document.Path, schemaLocation, string.Empty ){ ValidationHandler = this };
 			if( newSchema.SchemaRootNode != null )
 				AddSchemaToSchemaList( newSchema );
 		}
@@ -427,7 +427,7 @@ namespace JeffFerguson.Gepsio
 		private void ReadTaxonomySchemaReference( INode SchemaRefNode ) {
 			string HrefAttributeValue = SchemaRefNode.GetAttributeValue( Xlink.XlinkNode.xlinkNamespace, "href" );
 			string Base = SchemaRefNode.GetAttributeValue( XbrlDocument.XmlNamespaceUri, "base" );
-			var newSchema = new XbrlSchema( this, HrefAttributeValue, Base );
+			var newSchema = new XbrlSchema( this.Document.Path, HrefAttributeValue, Base ){ ValidationHandler = this };
 			if( newSchema.SchemaRootNode != null )
 				AddSchemaToSchemaList( newSchema );
 		}
@@ -487,7 +487,7 @@ namespace JeffFerguson.Gepsio
 		//-------------------------------------------------------------------------------
 		//-------------------------------------------------------------------------------
 		private bool IsTaxonomyNamespace( string CandidateNamespace ) {
-			var matchingSchema = this.Schemas.GetSchemaFromTargetNamespace( CandidateNamespace, this );
+			var matchingSchema = this.Schemas.GetSchemaFromTargetNamespace( CandidateNamespace, this, this.Document.Path );
 			if( matchingSchema == null )
 				return false;
 			return true;

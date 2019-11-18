@@ -17,9 +17,9 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         private IXbrlFragment validatingFragment;
         private Fact validatingFact;
         private Item validatingItem;
-		private IValidationErrorsList thisValidationErrors;
+		private IValidationHandler thisValidationErrors;
 
-		internal void Validate(IXbrlFragment fragment, Fact fact, IValidationErrorsList validationErrors)
+		internal void Validate(IXbrlFragment fragment, Fact fact, IValidationHandler validationErrors)
         {
 			this.thisValidationErrors = validationErrors;
 			this.validatingFragment = fragment;

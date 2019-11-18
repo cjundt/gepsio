@@ -29,12 +29,12 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
     /// validations. This class delegates to other validators as necessary.
     /// </para>
     /// </remarks>
-    internal class Xbrl2Dot1Validator : IValidationErrorsList
+    internal class Xbrl2Dot1Validator : IValidationHandler
     {
         private IXbrlFragment validatingFragment;
-		private IValidationErrorsList thisValidationErrors;
+		private IValidationHandler thisValidationErrors;
 
-		internal void Validate(IXbrlFragment fragment, IValidationErrorsList validationErrors)
+		internal void Validate(IXbrlFragment fragment, IValidationHandler validationErrors)
         {
 			this.thisValidationErrors = validationErrors;
 			validatingFragment = fragment;

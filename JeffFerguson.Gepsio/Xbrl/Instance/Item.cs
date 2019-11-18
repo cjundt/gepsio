@@ -233,7 +233,7 @@ namespace JeffFerguson.Gepsio
         //------------------------------------------------------------------------------------
         private void GetSchemaElementFromSchema()
         {
-            thisSchema = thisParentFragment.Schemas.GetSchemaFromTargetNamespace(this.Namespace, thisParentFragment);
+            thisSchema = thisParentFragment.Schemas.GetSchemaFromTargetNamespace(this.Namespace, thisParentFragment, this.thisParentFragment.Document.Path );
             if (thisSchema == null)
             {
                 if (thisParentFragment.Schemas.Count == 0)

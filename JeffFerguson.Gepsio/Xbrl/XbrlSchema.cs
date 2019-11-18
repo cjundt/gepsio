@@ -143,16 +143,10 @@ namespace JeffFerguson.Gepsio
         /// </summary>
         public List<RoleType> RoleTypes { get; private set; }
 
-        /// <summary>
-        /// The <see cref="XbrlFragment"/> which references the schema.
-        /// </summary>
-        public XbrlFragment Fragment { get; private set; }
-
         //-------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------
-        internal XbrlSchema(XbrlFragment ContainingXbrlFragment, string SchemaFilename, string BaseDirectory)
+        internal XbrlSchema(string root, string SchemaFilename, string BaseDirectory)
         {
-            this.Fragment = ContainingXbrlFragment;
             this.SchemaReferencePath = GetFullSchemaPath(SchemaFilename, BaseDirectory);
             this.LoadPath = this.SchemaReferencePath;
             try
@@ -165,7 +159,7 @@ namespace JeffFerguson.Gepsio
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("FileNotFoundDuringSchemaCreation");
                 MessageBuilder.AppendFormat(StringFormat, this.SchemaReferencePath);
-                this.Fragment.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString(), fnfEx));
+                this.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString(), fnfEx));
                 return;
             }
             catch (WebException webEx)
@@ -186,7 +180,7 @@ namespace JeffFerguson.Gepsio
                 var webResponse = webEx.Response as HttpWebResponse;
                 if(webResponse == null || webResponse.StatusCode == HttpStatusCode.NotFound || webResponse.StatusCode == HttpStatusCode.Forbidden)
                 {
-                    schemaLocalPath = BuildSchemaPathLocalToFragment(ContainingXbrlFragment, SchemaFilename);
+                    schemaLocalPath = this.BuildSchemaPathLocalToFragment( SchemaFilename, root );
                     try
                     {
                         localSchemaAvailable = ReadAndCompile(schemaLocalPath);
@@ -201,7 +195,7 @@ namespace JeffFerguson.Gepsio
                     StringBuilder MessageBuilder = new StringBuilder();
                     string StringFormat = AssemblyResources.GetName("WebExceptionThrownDuringSchemaCreation");
                     MessageBuilder.AppendFormat(StringFormat, this.SchemaReferencePath);
-                    this.Fragment.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString(), webEx));
+                    this.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString(), webEx));
                     return;
                 }
                 this.LoadPath = schemaLocalPath;
@@ -219,6 +213,10 @@ namespace JeffFerguson.Gepsio
             ReadElements();
             LookForAnnotations();
         }
+        public void AddValidationError(ValidationError error) {
+            this.ValidationHandler?.AddValidationError( error );
+        }
+        public IValidationHandler ValidationHandler { get; set; }
 
         /// <summary>
         /// Reads a schema and compiles it into a schema set.
@@ -241,7 +239,7 @@ namespace JeffFerguson.Gepsio
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("SchemaFileCandidateDoesNotContainSchemaRootNode");
                 MessageBuilder.AppendFormat(StringFormat, schemaPath);
-                this.Fragment.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString()));
+                this.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString()));
                 return false;
             }
             thisXmlSchemaSet.Add(thisXmlSchema);
@@ -253,16 +251,15 @@ namespace JeffFerguson.Gepsio
         /// Builds a schema path local to a given fragment, ignoring any existing path information
         /// in the supplied schema path.
         /// </summary>
-        /// <param name="ContainingXbrlFragment"></param>
         /// <param name="SchemaFilename"></param>
+        /// <param name="root"></param>
         /// <returns></returns>
-        private string BuildSchemaPathLocalToFragment(XbrlFragment ContainingXbrlFragment, string SchemaFilename)
+        private string BuildSchemaPathLocalToFragment(string SchemaFilename, string root)
         {
             var schemaUri = new Uri(SchemaFilename);
             var schemaUriSegments = schemaUri.Segments.Length;
             var schemaUriFilename = schemaUri.Segments[schemaUriSegments - 1];
-            var localPath = ContainingXbrlFragment.Document.Path;
-            var schemaLocalPath = System.IO.Path.Combine(localPath, schemaUriFilename);
+            var schemaLocalPath = System.IO.Path.Combine(root, schemaUriFilename);
             return schemaLocalPath;
         }
 
@@ -340,25 +337,7 @@ namespace JeffFerguson.Gepsio
                 return SchemaFilename;
 
             // At this point, we're confident that we have an actual filename.
-
-            string FullPath;
-            int FirstPathSeparator = SchemaFilename.IndexOf(System.IO.Path.DirectorySeparatorChar);
-            if (FirstPathSeparator == -1)
-            {
-                string DocumentUri = this.Fragment.XbrlRootNode.BaseURI;
-                int LastPathSeparator = DocumentUri.LastIndexOf(System.IO.Path.DirectorySeparatorChar);
-                if (LastPathSeparator == -1)
-                    LastPathSeparator = DocumentUri.LastIndexOf('/');
-                string DocumentPath = DocumentUri.Substring(0, LastPathSeparator + 1);
-                if (BaseDirectory.Length > 0)
-                    DocumentPath = DocumentPath + BaseDirectory;
-                FullPath = DocumentPath + SchemaFilename;
-            }
-            else
-            {
-                throw new NotImplementedException("XbrlSchema.GetFullSchemaPath() code path not implemented.");
-            }
-            return FullPath;
+            return Path.Combine( BaseDirectory, SchemaFilename );
         }
 
         /// <summary>
@@ -373,7 +352,7 @@ namespace JeffFerguson.Gepsio
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("SchemaFileCandidateDoesNotContainSchemaRootNode");
                 MessageBuilder.AppendFormat(StringFormat, this.SchemaReferencePath);
-                this.Fragment.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString()));
+                this.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString()));
                 return;
             }
             this.TargetNamespace = this.SchemaRootNode.Attributes["targetNamespace"].Value;

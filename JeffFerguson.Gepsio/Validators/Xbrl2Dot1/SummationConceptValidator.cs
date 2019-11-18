@@ -9,13 +9,13 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
     /// </summary>
     public class SummationConceptValidator
     {
-		private readonly IValidationErrorsList thisValidationErrors;
+		private readonly IValidationHandler thisValidationErrors;
 		/// <summary>
         /// The XBRL fragment whose summation concepts have been validated by the validator.
         /// </summary>
         private IXbrlFragment ValidatedFragment { get; set; }
 
-        internal SummationConceptValidator(IXbrlFragment fragment, IValidationErrorsList validationErrors) {
+        internal SummationConceptValidator(IXbrlFragment fragment, IValidationHandler validationErrors) {
 			this.thisValidationErrors = validationErrors;
 			this.ValidatedFragment = fragment;
 		}

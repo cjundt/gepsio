@@ -292,13 +292,14 @@ namespace JeffFerguson.Gepsio
         /// <param name="parentFragment">
         /// The fragment containing the schema reference.
         /// </param>
+        /// <param name="root"></param>
         /// <returns>
         /// A reference to the schema matching the target namespace. A null reference will be returned
         /// if no matching schema can be found. 
         /// </returns>
-        public XbrlSchema GetSchemaFromTargetNamespace(string targetNamespace, XbrlFragment parentFragment)
+        public XbrlSchema GetSchemaFromTargetNamespace(string targetNamespace, IValidationHandler parentFragment, string root)
         {
-            var foundSchema = FindSchema(targetNamespace);
+            var foundSchema = this.FindSchema(targetNamespace);
             if(foundSchema == null)
             {
 
@@ -312,10 +313,10 @@ namespace JeffFerguson.Gepsio
                 StandardNamespaceSchemaLocationDictionary.TryGetValue(targetNamespace, out schemaLocation);
                 if (string.IsNullOrEmpty(schemaLocation) == true)
                     return null;
-                var newSchema = new XbrlSchema(parentFragment, schemaLocation, string.Empty);
-                newSchema.TargetNamespaceAlias = targetNamespace;
-                Add(newSchema);
-                foundSchema = FindSchema(targetNamespace);
+				var newSchema = new XbrlSchema( root, schemaLocation, string.Empty ) { ValidationHandler = parentFragment };
+				newSchema.TargetNamespaceAlias = targetNamespace;
+                this.Add(newSchema);
+                foundSchema = this.FindSchema(targetNamespace);
             }
             return foundSchema;
         }

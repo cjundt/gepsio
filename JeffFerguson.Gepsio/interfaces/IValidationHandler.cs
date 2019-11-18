@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace JeffFerguson.Gepsio {
-	public interface IValidationErrorsList {
+	public interface IValidationHandler {
 		void AddValidationError(ValidationError validationError);
 	}
 }

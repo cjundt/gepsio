@@ -124,7 +124,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
 				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
                 return;
             }
-            if ((Uri.Length > 0) && (Uri.Equals(XbrlDocument.XbrlIso4217NamespaceUri) == false))
+            if ((Uri.Length > 0) && (Uri.Equals(NamespaceUri.XbrlIso4217NamespaceUri) == false))
             {
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("WrongMeasureNamespaceForMonetaryFact");
@@ -193,7 +193,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
             string Uri = UnitReference.MeasureQualifiedNames[0].NamespaceUri;
             if (string.IsNullOrEmpty(Uri) == true)
                 SharesNamespaceCorrect = false;
-            else if (Uri.Equals(XbrlDocument.XbrlNamespaceUri) == false)
+            else if (Uri.Equals(NamespaceUri.XbrlNamespaceUri) == false)
                 SharesNamespaceCorrect = false;
             if (SharesNamespaceCorrect == false)
             {

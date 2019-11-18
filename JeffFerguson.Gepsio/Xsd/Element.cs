@@ -174,7 +174,7 @@ namespace JeffFerguson.Gepsio.Xsd
         //------------------------------------------------------------------------------------
         private void SetPeriodType()
         {
-            string PeriodTypePrefix = this.Schema.GetPrefixForUri(XbrlDocument.XbrlNamespaceUri);
+            string PeriodTypePrefix = this.Schema.GetPrefixForUri(NamespaceUri.XbrlNamespaceUri);
             string AttributeName;
             if (PeriodTypePrefix == null)
                 AttributeName = "periodType";
@@ -222,13 +222,13 @@ namespace JeffFerguson.Gepsio.Xsd
             this.SubstitutionGroup = ElementSubstitutionGroup.Unknown;
             if ((SubstitutionGroupValue.Name.Length == 0) && (SubstitutionGroupValue.Namespace.Length == 0))
                 return;
-            if ((SubstitutionGroupValue.Namespace.Equals(XbrlDocument.XbrlNamespaceUri) == true) && (SubstitutionGroupValue.Name.Equals("item") == true))
+            if ((SubstitutionGroupValue.Namespace.Equals(NamespaceUri.XbrlNamespaceUri) == true) && (SubstitutionGroupValue.Name.Equals("item") == true))
                 this.SubstitutionGroup = ElementSubstitutionGroup.Item;
-            else if ((SubstitutionGroupValue.Namespace.Equals(XbrlDocument.XbrlNamespaceUri) == true) && (SubstitutionGroupValue.Name.Equals("tuple") == true))
+            else if ((SubstitutionGroupValue.Namespace.Equals(NamespaceUri.XbrlNamespaceUri) == true) && (SubstitutionGroupValue.Name.Equals("tuple") == true))
                 this.SubstitutionGroup = ElementSubstitutionGroup.Tuple;
-            else if ((SubstitutionGroupValue.Namespace.Equals(XbrlDocument.XbrlDimensionsNamespaceUri) == true) && (SubstitutionGroupValue.Name.Equals("dimensionItem") == true))
+            else if ((SubstitutionGroupValue.Namespace.Equals(NamespaceUri.XbrlDimensionsNamespaceUri) == true) && (SubstitutionGroupValue.Name.Equals("dimensionItem") == true))
                 this.SubstitutionGroup = ElementSubstitutionGroup.DimensionItem;
-            else if ((SubstitutionGroupValue.Namespace.Equals(XbrlDocument.XbrlDimensionsNamespaceUri) == true) && (SubstitutionGroupValue.Name.Equals("hypercubeItem") == true))
+            else if ((SubstitutionGroupValue.Namespace.Equals(NamespaceUri.XbrlDimensionsNamespaceUri) == true) && (SubstitutionGroupValue.Name.Equals("hypercubeItem") == true))
                 this.SubstitutionGroup = ElementSubstitutionGroup.HypercubeItem;
             else
             {

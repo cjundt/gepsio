@@ -41,51 +41,6 @@ namespace JeffFerguson.Gepsio
     /// </remarks>
     public class XbrlDocument
     {
-
-        // namespace URIs
-
-        internal static string XbrlNamespaceUri = "http://www.xbrl.org/2003/instance";
-        internal static string XbrlLinkbaseNamespaceUri = "http://www.xbrl.org/2003/linkbase";
-        internal static string XbrlDimensionsNamespaceUri = "http://xbrl.org/2005/xbrldt";
-        internal static string XbrlEssenceAliasArcroleNamespaceUri = "http://www.xbrl.org/2003/arcrole/essence-alias";
-        internal static string XbrlGeneralSpecialArcroleNamespaceUri = "http://www.xbrl.org/2003/arcrole/general-special";
-        internal static string XbrlSimilarTuplesArcroleNamespaceUri = "http://www.xbrl.org/2003/arcrole/similar-tuples";
-        internal static string XbrlRequiresElementArcroleNamespaceUri = "http://www.xbrl.org/2003/arcrole/requires-element";
-        internal static string XbrlFactFootnoteArcroleNamespaceUri = "http://www.xbrl.org/2003/arcrole/fact-footnote";
-        internal static string XbrlIso4217NamespaceUri = "http://www.xbrl.org/2003/iso4217";
-        internal static string XmlNamespaceUri = "http://www.w3.org/XML/1998/namespace";
-        internal static string XmlSchemaInstanceUri = "http://www.w3.org/2001/XMLSchema-instance";
-
-        // role URIs
-
-        internal static string XbrlLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/label";
-        internal static string XbrlTerseLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/terseLabel";
-        internal static string XbrlVerboseLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/verboseLabel";
-        internal static string XbrlPositiveLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/positiveLabel";
-        internal static string XbrlPositiveTerseLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/positiveTerseLabel";
-        internal static string XbrlPositiveVerboseLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/positiveVerboseLabel";
-        internal static string XbrlNegativeLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/negativeLabel";
-        internal static string XbrlNegativeTerseLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/negativeTerseLabel";
-        internal static string XbrlNegativeVerboseLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/negativeVerboseLabel";
-        internal static string XbrlZeroLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/zeroLabel";
-        internal static string XbrlZeroTerseLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/zeroTerseLabel";
-        internal static string XbrlZeroVerboseLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/zeroVerboseLabel";
-        internal static string XbrlTotalLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/totalLabel";
-        internal static string XbrlPeriodStartLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/periodStartLabel";
-        internal static string XbrlPeriodEndLabelRoleNamespaceUri = "http://www.xbrl.org/2003/role/periodEndLabel";
-        internal static string XbrlDocumentationRoleNamespaceUri = "http://www.xbrl.org/2003/role/documentation";
-        internal static string XbrlDocumentationGuidanceRoleNamespaceUri = "http://www.xbrl.org/2003/role/definitionGuidance";
-        internal static string XbrlDisclosureGuidanceRoleNamespaceUri = "http://www.xbrl.org/2003/role/disclosureGuidance";
-        internal static string XbrlPresentationGuidanceRoleNamespaceUri = "http://www.xbrl.org/2003/role/presentationGuidance";
-        internal static string XbrlMeasurementGuidanceRoleNamespaceUri = "http://www.xbrl.org/2003/role/measurementGuidance";
-        internal static string XbrlCommentaryGuidanceRoleNamespaceUri = "http://www.xbrl.org/2003/role/commentaryGuidance";
-        internal static string XbrlExampleGuidanceRoleNamespaceUri = "http://www.xbrl.org/2003/role/exampleGuidance";
-        internal static string XbrlCalculationLinkbaseReferenceRoleNamespaceUri = "http://www.xbrl.org/2003/role/calculationLinkbaseRef";
-        internal static string XbrlDefinitionLinkbaseReferenceRoleNamespaceUri = "http://www.xbrl.org/2003/role/definitionLinkbaseRef";
-        internal static string XbrlLabelLinkbaseReferenceRoleNamespaceUri = "http://www.xbrl.org/2003/role/labelLinkbaseRef";
-        internal static string XbrlPresentationLinkbaseReferenceRoleNamespaceUri = "http://www.xbrl.org/2003/role/presentationLinkbaseRef";
-        internal static string XbrlReferenceLinkbaseReferenceRoleNamespaceUri = "http://www.xbrl.org/2003/role/referenceLinkbaseRef";
-
         /// <summary>
         /// The name of the XML document used to contain the XBRL data.
         /// </summary>
@@ -269,7 +224,7 @@ namespace JeffFerguson.Gepsio
         {
             var NewNamespaceManager = Container.Resolve<INamespaceManager>();
             NewNamespaceManager.Document = doc;
-            NewNamespaceManager.AddNamespace("instance", XbrlNamespaceUri);
+            NewNamespaceManager.AddNamespace("instance", NamespaceUri.XbrlNamespaceUri);
             INodeList XbrlNodes = doc.SelectNodes("//instance:xbrl", NewNamespaceManager);
             foreach (INode XbrlNode in XbrlNodes)
                 this.XbrlFragments.Add(new XbrlFragment(this, NewNamespaceManager, XbrlNode));
@@ -292,27 +247,6 @@ namespace JeffFerguson.Gepsio
                 var roleTypeCandidate = currentFragment.GetRoleType(RoleTypeId);
                 if (roleTypeCandidate != null)
                     return roleTypeCandidate;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Finds the <see cref="CalculationLink"/> object having the given role.
-        /// </summary>
-        /// <param name="CalculationLinkRole">
-        /// The role type to find.
-        /// </param>
-        /// <returns>
-        /// The <see cref="CalculationLink"/> object having the given role, or
-        /// null if no object can be found.
-        /// </returns>
-        public CalculationLink GetCalculationLink(RoleType CalculationLinkRole)
-        {
-            foreach (var currentFragment in XbrlFragments)
-            {
-                var calculationLinkCandidate = currentFragment.GetCalculationLink(CalculationLinkRole);
-                if (calculationLinkCandidate != null)
-                    return calculationLinkCandidate;
             }
             return null;
         }

@@ -290,26 +290,12 @@ namespace JeffFerguson.Gepsio
 			return this.Schemas.GetRoleType( RoleTypeId );
 		}
 
-		/// <summary>
-		/// Finds the <see cref="CalculationLink"/> object having the given role.
-		/// </summary>
-		/// <param name="CalculationLinkRole">
-		/// The role type to find.
-		/// </param>
-		/// <returns>
-		/// The <see cref="CalculationLink"/> object having the given role, or
-		/// null if no object can be found.
-		/// </returns>
-		public CalculationLink GetCalculationLink( RoleType CalculationLinkRole ) {
-			return this.Schemas.GetCalculationLink( CalculationLinkRole );
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Read and process any schemaLocation attributes found in the XBRL root node.
 		/// </summary>
 		private void ReadSchemaLocationAttributes() {
 			foreach( IAttribute currentAttribute in this.XbrlRootNode.Attributes ) {
-				if( (currentAttribute.NamespaceURI.Equals( XbrlDocument.XmlSchemaInstanceUri ) == true) && (currentAttribute.LocalName.Equals( "schemaLocation" ) == true) ) {
+				if( (currentAttribute.NamespaceURI.Equals( NamespaceUri.XmlSchemaInstanceUri ) == true) && (currentAttribute.LocalName.Equals( "schemaLocation" ) == true) ) {
 					var attributeValue = currentAttribute.Value.Trim( );
 					if( string.IsNullOrEmpty( attributeValue ) == false )
 						ProcessSchemaLocationAttributeValue( attributeValue );
@@ -372,7 +358,7 @@ namespace JeffFerguson.Gepsio
 		/// Read any process any schemaRef nodes beneath the main XBRL node.
 		/// </summary>
 		private void ReadTaxonomySchemaReferences() {
-			string LinkbaseNamespacePrefix = thisNamespaceManager.LookupPrefix( XbrlDocument.XbrlLinkbaseNamespaceUri );
+			string LinkbaseNamespacePrefix = thisNamespaceManager.LookupPrefix( NamespaceUri.XbrlLinkbaseNamespaceUri );
 			StringBuilder XPathExpressionBuilder = new StringBuilder( );
 			XPathExpressionBuilder.AppendFormat( "//{0}:schemaRef", LinkbaseNamespacePrefix );
 			string XPathExpression = XPathExpressionBuilder.ToString( );
@@ -385,7 +371,7 @@ namespace JeffFerguson.Gepsio
 		//-------------------------------------------------------------------------------
 		private void ReadRoleReferences() {
 			this._roleReferences = new List<RoleReference>( );
-			string LinkbaseNamespacePrefix = thisNamespaceManager.LookupPrefix( XbrlDocument.XbrlLinkbaseNamespaceUri );
+			string LinkbaseNamespacePrefix = thisNamespaceManager.LookupPrefix( NamespaceUri.XbrlLinkbaseNamespaceUri );
 			StringBuilder XPathExpressionBuilder = new StringBuilder( );
 			XPathExpressionBuilder.AppendFormat( "//{0}:roleRef", LinkbaseNamespacePrefix );
 			string XPathExpression = XPathExpressionBuilder.ToString( );
@@ -398,7 +384,7 @@ namespace JeffFerguson.Gepsio
 		//-------------------------------------------------------------------------------
 		private void ReadArcroleReferences() {
 			this._arcroleReferences = new List<ArcroleReference>( );
-			string LinkbaseNamespacePrefix = thisNamespaceManager.LookupPrefix( XbrlDocument.XbrlLinkbaseNamespaceUri );
+			string LinkbaseNamespacePrefix = thisNamespaceManager.LookupPrefix( NamespaceUri.XbrlLinkbaseNamespaceUri );
 			StringBuilder XPathExpressionBuilder = new StringBuilder( );
 			XPathExpressionBuilder.AppendFormat( "//{0}:arcroleRef", LinkbaseNamespacePrefix );
 			string XPathExpression = XPathExpressionBuilder.ToString( );
@@ -411,7 +397,7 @@ namespace JeffFerguson.Gepsio
 		//-------------------------------------------------------------------------------
 		private void ReadTaxonomySchemaReference( INode SchemaRefNode ) {
 			string HrefAttributeValue = SchemaRefNode.GetAttributeValue( Xlink.XlinkNode.xlinkNamespace, "href" );
-			string Base = SchemaRefNode.GetAttributeValue( XbrlDocument.XmlNamespaceUri, "base" );
+			string Base = SchemaRefNode.GetAttributeValue( NamespaceUri.XmlNamespaceUri, "base" );
 			var newSchema = new XbrlSchema( this.Document.Path, HrefAttributeValue, Base ){ ValidationHandler = this };
 			if( newSchema.SchemaRootNode != null )
 				AddSchemaToSchemaList( newSchema );
@@ -491,7 +477,7 @@ namespace JeffFerguson.Gepsio
 		//-------------------------------------------------------------------------------
 		private void ReadFootnoteLinks() {
 			_footnoteLinks = new List<FootnoteLink>( );
-			string LinkbaseNamespacePrefix = thisNamespaceManager.LookupPrefix( XbrlDocument.XbrlLinkbaseNamespaceUri );
+			string LinkbaseNamespacePrefix = thisNamespaceManager.LookupPrefix( NamespaceUri.XbrlLinkbaseNamespaceUri );
 			StringBuilder XPathExpressionBuilder = new StringBuilder( );
 			XPathExpressionBuilder.AppendFormat( "//{0}:footnoteLink", LinkbaseNamespacePrefix );
 			string XPathExpression = XPathExpressionBuilder.ToString( );

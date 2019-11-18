@@ -103,13 +103,13 @@ namespace JeffFerguson.Gepsio
         private void SetRole(string ArcRoleValue)
         {
             this.Role = RoleEnum.Unknown;
-            if (ArcRoleValue.Equals(XbrlDocument.XbrlEssenceAliasArcroleNamespaceUri) == true)
+            if (ArcRoleValue.Equals(NamespaceUri.XbrlEssenceAliasArcroleNamespaceUri) == true)
                 this.Role = RoleEnum.EssenceAlias;
-            else if (ArcRoleValue.Equals(XbrlDocument.XbrlGeneralSpecialArcroleNamespaceUri) == true)
+            else if (ArcRoleValue.Equals(NamespaceUri.XbrlGeneralSpecialArcroleNamespaceUri) == true)
                 this.Role = RoleEnum.GeneralSpecial;
-            else if (ArcRoleValue.Equals(XbrlDocument.XbrlSimilarTuplesArcroleNamespaceUri) == true)
+            else if (ArcRoleValue.Equals(NamespaceUri.XbrlSimilarTuplesArcroleNamespaceUri) == true)
                 this.Role = RoleEnum.SimilarTuples;
-            else if (ArcRoleValue.Equals(XbrlDocument.XbrlRequiresElementArcroleNamespaceUri) == true)
+            else if (ArcRoleValue.Equals(NamespaceUri.XbrlRequiresElementArcroleNamespaceUri) == true)
                 this.Role = RoleEnum.RequiresElement;
         }
     }

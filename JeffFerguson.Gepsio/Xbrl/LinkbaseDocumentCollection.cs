@@ -129,7 +129,7 @@ namespace JeffFerguson.Gepsio
         {
             foreach (INode CurrentChild in parentNode.ChildNodes)
             {
-                if ((CurrentChild.NamespaceURI.Equals(XbrlDocument.XbrlLinkbaseNamespaceUri) == true) && (CurrentChild.LocalName.Equals("linkbaseRef") == true))
+                if ((CurrentChild.NamespaceURI.Equals(NamespaceUri.XbrlLinkbaseNamespaceUri) == true) && (CurrentChild.LocalName.Equals("linkbaseRef") == true))
                     ReadLinkbaseReference(ContainingDocumentUri, CurrentChild);
             }
         }
@@ -137,23 +137,23 @@ namespace JeffFerguson.Gepsio
         private void ReadLinkbaseReference(string ContainingDocumentUri, INode LinkbaseReferenceNode)
         {
             var xlinkNode = new XlinkNode(LinkbaseReferenceNode);
-            if (xlinkNode.IsInRole(XbrlDocument.XbrlCalculationLinkbaseReferenceRoleNamespaceUri) == true)
+            if (xlinkNode.IsInRole(RoleUri.XbrlCalculationLinkbaseReferenceRoleNamespaceUri) == true)
             {
                 this.thisLinkbaseDocuments.Add(new CalculationLinkbaseDocument(ContainingDocumentUri, xlinkNode.Href));
             }
-            else if (xlinkNode.IsInRole(XbrlDocument.XbrlDefinitionLinkbaseReferenceRoleNamespaceUri) == true)
+            else if (xlinkNode.IsInRole(RoleUri.XbrlDefinitionLinkbaseReferenceRoleNamespaceUri) == true)
             {
                 this.thisLinkbaseDocuments.Add(new DefinitionLinkbaseDocument(ContainingDocumentUri, xlinkNode.Href));
             }
-            else if (xlinkNode.IsInRole(XbrlDocument.XbrlLabelLinkbaseReferenceRoleNamespaceUri) == true)
+            else if (xlinkNode.IsInRole(RoleUri.XbrlLabelLinkbaseReferenceRoleNamespaceUri) == true)
             {
                 this.thisLinkbaseDocuments.Add(new LabelLinkbaseDocument(ContainingDocumentUri, xlinkNode.Href));
             }
-            else if (xlinkNode.IsInRole(XbrlDocument.XbrlPresentationLinkbaseReferenceRoleNamespaceUri) == true)
+            else if (xlinkNode.IsInRole(RoleUri.XbrlPresentationLinkbaseReferenceRoleNamespaceUri) == true)
             {
                 this.thisLinkbaseDocuments.Add(new PresentationLinkbaseDocument(ContainingDocumentUri, xlinkNode.Href));
             }
-            else if (xlinkNode.IsInRole(XbrlDocument.XbrlReferenceLinkbaseReferenceRoleNamespaceUri) == true)
+            else if (xlinkNode.IsInRole(RoleUri.XbrlReferenceLinkbaseReferenceRoleNamespaceUri) == true)
             {
                 this.thisLinkbaseDocuments.Add(new ReferenceLinkbaseDocument(ContainingDocumentUri, xlinkNode.Href));
             }

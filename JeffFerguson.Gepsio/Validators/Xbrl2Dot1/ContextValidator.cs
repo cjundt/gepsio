@@ -54,7 +54,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
 
         private void ValidateScenarioNode(INode ScenarioNode)
         {
-            if (ScenarioNode.NamespaceURI.Equals(XbrlDocument.XbrlNamespaceUri) == true)
+            if (ScenarioNode.NamespaceURI.Equals(NamespaceUri.XbrlNamespaceUri) == true)
             {
                 string MessageFormat = AssemblyResources.GetName("ScenarioNodeUsingXBRLNamespace");
                 StringBuilder MessageBuilder = new StringBuilder();
@@ -103,7 +103,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
 
         private void ValidateSegmentNodeNamespace(INode SegmentNode)
         {
-            if (SegmentNode.NamespaceURI.Equals(XbrlDocument.XbrlNamespaceUri) == true)
+            if (SegmentNode.NamespaceURI.Equals(NamespaceUri.XbrlNamespaceUri) == true)
             {
                 string MessageFormat = AssemblyResources.GetName("SegmentNodeUsingXBRLNamespace");
                 StringBuilder MessageBuilder = new StringBuilder();

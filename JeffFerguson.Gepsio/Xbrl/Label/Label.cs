@@ -128,7 +128,7 @@ namespace JeffFerguson.Gepsio
         {
             this.Text = LabelNode.InnerText;
             SetRole(this.Role);
-            string LanguageValue = LabelNode.GetAttributeValue(XbrlDocument.XmlNamespaceUri, "lang");
+            string LanguageValue = LabelNode.GetAttributeValue(NamespaceUri.XmlNamespaceUri, "lang");
             this.Culture = new CultureInfo(LanguageValue);
         }
 
@@ -138,49 +138,49 @@ namespace JeffFerguson.Gepsio
         private void SetRole(string RoleUri)
         {
             this.LabelRole = RoleEnum.Standard;
-            if (RoleUri.Equals(XbrlDocument.XbrlLabelRoleNamespaceUri) == true)
+            if (RoleUri.Equals(global::RoleUri.XbrlLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.Standard;
-            else if (RoleUri.Equals(XbrlDocument.XbrlTerseLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlTerseLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.Short;
-            else if (RoleUri.Equals(XbrlDocument.XbrlVerboseLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlVerboseLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.Verbose;
-            else if (RoleUri.Equals(XbrlDocument.XbrlPositiveLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlPositiveLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.StandardPositiveValue;
-            else if (RoleUri.Equals(XbrlDocument.XbrlPositiveTerseLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlPositiveTerseLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.ShortPositiveValue;
-            else if (RoleUri.Equals(XbrlDocument.XbrlPositiveVerboseLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlPositiveVerboseLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.VerbosePositiveValue;
-            else if (RoleUri.Equals(XbrlDocument.XbrlNegativeLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlNegativeLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.StandardNegativeValue;
-            else if (RoleUri.Equals(XbrlDocument.XbrlNegativeTerseLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlNegativeTerseLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.ShortNegativeValue;
-            else if (RoleUri.Equals(XbrlDocument.XbrlNegativeVerboseLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlNegativeVerboseLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.VerboseNegativeValue;
-            else if (RoleUri.Equals(XbrlDocument.XbrlZeroLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlZeroLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.StandardZeroValue;
-            else if (RoleUri.Equals(XbrlDocument.XbrlZeroTerseLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlZeroTerseLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.ShortZeroValue;
-            else if (RoleUri.Equals(XbrlDocument.XbrlZeroVerboseLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlZeroVerboseLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.VerboseZeroValue;
-            else if (RoleUri.Equals(XbrlDocument.XbrlTotalLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlTotalLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.Total;
-            else if (RoleUri.Equals(XbrlDocument.XbrlPeriodStartLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlPeriodStartLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.PeriodStart;
-            else if (RoleUri.Equals(XbrlDocument.XbrlPeriodEndLabelRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlPeriodEndLabelRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.PeriodEnd;
-            else if (RoleUri.Equals(XbrlDocument.XbrlDocumentationRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlDocumentationRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.Documentation;
-            else if (RoleUri.Equals(XbrlDocument.XbrlDocumentationGuidanceRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlDocumentationGuidanceRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.DefinitionGuidance;
-            else if (RoleUri.Equals(XbrlDocument.XbrlDisclosureGuidanceRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlDisclosureGuidanceRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.DisclosureGuidance;
-            else if (RoleUri.Equals(XbrlDocument.XbrlPresentationGuidanceRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlPresentationGuidanceRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.PresentationGuidance;
-            else if (RoleUri.Equals(XbrlDocument.XbrlMeasurementGuidanceRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlMeasurementGuidanceRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.MeasurementGuidance;
-            else if (RoleUri.Equals(XbrlDocument.XbrlCommentaryGuidanceRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlCommentaryGuidanceRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.CommentaryGuidance;
-            else if (RoleUri.Equals(XbrlDocument.XbrlExampleGuidanceRoleNamespaceUri) == true)
+            else if (RoleUri.Equals(global::RoleUri.XbrlExampleGuidanceRoleNamespaceUri) == true)
                 this.LabelRole = RoleEnum.ExampleGuidance;
         }
     }

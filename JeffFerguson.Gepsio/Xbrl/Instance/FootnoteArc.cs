@@ -93,7 +93,7 @@ namespace JeffFerguson.Gepsio
         {
             get
             {
-                return ArcRole.Equals(XbrlDocument.XbrlFactFootnoteArcroleNamespaceUri);
+                return ArcRole.Equals(NamespaceUri.XbrlFactFootnoteArcroleNamespaceUri);
             }
         }
 

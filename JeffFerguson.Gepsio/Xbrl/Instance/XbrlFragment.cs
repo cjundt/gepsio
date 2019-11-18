@@ -305,21 +305,6 @@ namespace JeffFerguson.Gepsio
 		}
 
 		/// <summary>
-		/// Returns a prestable fact tree.
-		/// </summary>
-		/// <returns>
-		/// A presentable fact tree. A null will be returned if no presentation linkbase
-		/// is available.
-		/// </returns>
-		public PresentableFactTree GetPresentableFactTree() {
-			foreach( var currentSchema in Schemas.SchemaList ) {
-				if( currentSchema.PresentationLinkbase != null )
-					return new PresentableFactTree( currentSchema, this.Facts );
-			}
-			return null;
-		}
-
-		/// <summary>
 		/// Read and process any schemaLocation attributes found in the XBRL root node.
 		/// </summary>
 		private void ReadSchemaLocationAttributes() {

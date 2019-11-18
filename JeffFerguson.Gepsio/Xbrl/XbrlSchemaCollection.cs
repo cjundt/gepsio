@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace JeffFerguson.Gepsio
 {
-    /// <summary>
+	/// <summary>
     /// A collection of XBRL schemas.
     /// </summary>
     /// <remarks>
@@ -14,9 +14,11 @@ namespace JeffFerguson.Gepsio
     /// iterate through each schema to find requested information, freeing the caller from having to iterate through
     /// multiple schemas to find information.
     /// </remarks>
-    public class XbrlSchemaCollection : IEnumerable<XbrlSchema>
-    {
-        internal List<XbrlSchema> SchemaList { get; private set; }
+    public class XbrlSchemaCollection : IEnumerable<XbrlSchema>, ITaxonomy {
+		public List<XbrlSchema> SchemaList { get; }
+		public IEnumerable< CalculationLinkbaseDocument > CalculationLinkbases => this.SchemaList.Select( s => s.CalculationLinkbase ).Where( clb => clb != null );
+		public IEnumerable< DefinitionLinkbaseDocument > DefinitionLinkbases => this.SchemaList.Select( s => s.DefinitionLinkbase ).Where( dlb => dlb != null );
+		bool ITaxonomy.IsDefined => this.SchemaList.Count > 0;
 
         private static Dictionary<string, string> StandardNamespaceSchemaLocationDictionary;
 
@@ -350,7 +352,7 @@ namespace JeffFerguson.Gepsio
         /// The data type of the supplied node. A null reference will be returned
         /// if no matching element can be found for the supplied node.
         /// </returns>
-        internal AnyType GetNodeType(INode node)
+		public AnyType GetNodeType(INode node)
         {
             var containingSchema = GetSchemaContainingElement(node.LocalName);
             if (containingSchema == null)
@@ -371,7 +373,7 @@ namespace JeffFerguson.Gepsio
         /// The data type of the supplied attribute. A null reference will be returned
         /// if no matching element can be found for the supplied attribute.
         /// </returns>
-        internal AnyType GetAttributeType(IAttribute attribute)
+		public AnyType GetAttributeType(IAttribute attribute)
         {
             foreach (var CurrentSchema in SchemaList)
             {
@@ -392,7 +394,7 @@ namespace JeffFerguson.Gepsio
         /// A reference to the matching element. A null reference will be returned
         /// if no matching element can be found.
         /// </returns>
-        internal Element LocateElement(Locator ElementLocator)
+		public Element LocateElement(Locator ElementLocator)
         {
             foreach (var CurrentSchema in SchemaList)
             {

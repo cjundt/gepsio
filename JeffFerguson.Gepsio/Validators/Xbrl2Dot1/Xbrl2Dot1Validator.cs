@@ -29,13 +29,15 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
     /// validations. This class delegates to other validators as necessary.
     /// </para>
     /// </remarks>
-    internal class Xbrl2Dot1Validator
+    internal class Xbrl2Dot1Validator : IValidationErrorsList
     {
-        private XbrlFragment validatingFragment;
+        private IXbrlFragment validatingFragment;
+		private IValidationErrorsList thisValidationErrors;
 
-        internal void Validate(XbrlFragment fragment)
+		internal void Validate(IXbrlFragment fragment, IValidationErrorsList validationErrors)
         {
-            validatingFragment = fragment;
+			this.thisValidationErrors = validationErrors;
+			validatingFragment = fragment;
             ValidateRoleReferences();
             ValidateArcroleReferences();
             ValidateContexts();
@@ -65,7 +67,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     string MessageFormat = AssemblyResources.GetName("DuplicateRoleReferenceUri");
                     StringBuilder MessageBuilder = new StringBuilder();
                     MessageBuilder.AppendFormat(MessageFormat, currentRoleReferenceUriAsString);
-                    validatingFragment.AddValidationError(new RoleReferenceValidationError(currentRoleReference, MessageBuilder.ToString()));
+                    this.AddValidationError(new RoleReferenceValidationError(currentRoleReference, MessageBuilder.ToString()));
                     return;
                 }
                 uniqueUris.Add(currentRoleReferenceUriAsString, currentRoleReference);
@@ -91,7 +93,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     string MessageFormat = AssemblyResources.GetName("DuplicateArcroleReferenceUri");
                     StringBuilder MessageBuilder = new StringBuilder();
                     MessageBuilder.AppendFormat(MessageFormat, currentArcroleReferenceUriAsString);
-                    validatingFragment.AddValidationError(new ArcroleReferenceValidationError(currentArcroleReference, MessageBuilder.ToString()));
+                    this.AddValidationError(new ArcroleReferenceValidationError(currentArcroleReference, MessageBuilder.ToString()));
                     return;
                 }
                 uniqueUris.Add(currentArcroleReferenceUriAsString, currentArcroleReference);
@@ -113,7 +115,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <param name="FactList">
         /// A collection of facts whose contexts should be validated.
         /// </param>
-        private void ValidateContextRefs(FactCollection FactList)
+        private void ValidateContextRefs(IEnumerable<Fact> FactList)
         {
             foreach (Fact CurrentFact in FactList)
             {
@@ -139,7 +141,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
 
             try
             {
-                Context MatchingContext = validatingFragment.ContextDictionary[ContextRefValue];
+                Context MatchingContext = validatingFragment.GetContext( ContextRefValue );
                 ItemToValidate.ContextRef = MatchingContext;
             }
             catch (KeyNotFoundException)
@@ -147,7 +149,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 string MessageFormat = AssemblyResources.GetName("CannotFindContextForContextRef");
                 StringBuilder MessageBuilder = new StringBuilder();
                 MessageBuilder.AppendFormat(MessageFormat, ContextRefValue);
-                validatingFragment.AddValidationError(new ItemValidationError(ItemToValidate, MessageBuilder.ToString()));
+                this.AddValidationError(new ItemValidationError(ItemToValidate, MessageBuilder.ToString()));
             }
         }
 
@@ -188,17 +190,13 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
             // At this point, we have a unit ref should be matched to a unit.
             //-----------------------------------------------------------------------
             bool UnitFound = false;
-            Unit MatchingUnit = null;
-            foreach (Unit CurrentUnit in validatingFragment.Units)
-            {
-                if (CurrentUnit.Id == UnitRefValue)
-                {
-                    UnitFound = true;
-                    MatchingUnit = CurrentUnit;
-                    ItemToValidate.UnitRef = MatchingUnit;
-                }
-            }
-            //-----------------------------------------------------------------------
+            Unit MatchingUnit = validatingFragment.GetUnit( UnitRefValue );
+			if( MatchingUnit != null ) {
+				UnitFound = true;
+				ItemToValidate.UnitRef = MatchingUnit;
+			}
+
+			//-----------------------------------------------------------------------
             // Check to see if a unit is found.
             //-----------------------------------------------------------------------
             if (UnitFound == false)
@@ -206,7 +204,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 string MessageFormat = AssemblyResources.GetName("CannotFindUnitForUnitRef");
                 StringBuilder MessageBuilder = new StringBuilder();
                 MessageBuilder.AppendFormat(MessageFormat, UnitRefValue);
-                validatingFragment.AddValidationError(new ItemValidationError(ItemToValidate, MessageBuilder.ToString()));
+                this.AddValidationError(new ItemValidationError(ItemToValidate, MessageBuilder.ToString()));
             }
         }
 
@@ -229,7 +227,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                                     StringBuilder MessageBuilder = new StringBuilder();
                                     string StringFormat = AssemblyResources.GetName("ElementSchemaDefinesDurationButUsedWithNonDurationContext");
                                     MessageBuilder.AppendFormat(StringFormat, CurrentItem.SchemaElement.Schema.SchemaReferencePath, CurrentItem.Name, CurrentItem.ContextRef.Id);
-                                    validatingFragment.AddValidationError(new ItemValidationError(CurrentItem, MessageBuilder.ToString()));
+                                    this.AddValidationError(new ItemValidationError(CurrentItem, MessageBuilder.ToString()));
                                 }
                             }
                             break;
@@ -241,7 +239,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                                     StringBuilder MessageBuilder = new StringBuilder();
                                     string StringFormat = AssemblyResources.GetName("ElementSchemaDefinesInstantButUsedWithNonInstantContext");
                                     MessageBuilder.AppendFormat(StringFormat, CurrentItem.SchemaElement.Schema.SchemaReferencePath, CurrentItem.Name, CurrentItem.ContextRef.Id);
-                                    validatingFragment.AddValidationError(new ItemValidationError(CurrentItem, MessageBuilder.ToString()));
+                                    this.AddValidationError(new ItemValidationError(CurrentItem, MessageBuilder.ToString()));
                                 }
                             }
                             break;
@@ -272,7 +270,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("FootnoteReferencesFactInExternalDoc");
                 MessageBuilder.AppendFormat(StringFormat, Reference.ElementId, Reference.Url);
-                validatingFragment.AddValidationError(new HyperlinkReferenceValidationError(Reference, MessageBuilder.ToString()));
+                this.AddValidationError(new HyperlinkReferenceValidationError(Reference, MessageBuilder.ToString()));
                 return;
             }
             if (validatingFragment.GetFact(Reference.ElementId) == null)
@@ -280,7 +278,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("NoFactForFootnoteReference");
                 MessageBuilder.AppendFormat(StringFormat, FootnoteLocationReference);
-                validatingFragment.AddValidationError(new HyperlinkReferenceValidationError(Reference, MessageBuilder.ToString()));
+                this.AddValidationError(new HyperlinkReferenceValidationError(Reference, MessageBuilder.ToString()));
                 return;
             }
         }
@@ -325,7 +323,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     StringBuilder MessageBuilder = new StringBuilder();
                     string StringFormat = AssemblyResources.GetName("CannotFindFootnoteLocator");
                     MessageBuilder.AppendFormat(StringFormat, CurrentArc.Title, CurrentArc.From);
-                    validatingFragment.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
+                    this.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
                     return;
                 }
                 var fromFootnote = CurrentArc.Link.GetFootnote(CurrentArc.From);
@@ -334,7 +332,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     StringBuilder MessageBuilder = new StringBuilder();
                     string StringFormat = AssemblyResources.GetName("CannotFindFootnoteLocatorOrFootnote");
                     MessageBuilder.AppendFormat(StringFormat, CurrentArc.Title, CurrentArc.From);
-                    validatingFragment.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
+                    this.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
                     return;
                 }
                 CurrentArc.FromFootnote = fromFootnote;
@@ -346,7 +344,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     StringBuilder MessageBuilder = new StringBuilder();
                     string StringFormat = AssemblyResources.GetName("FootnoteReferencesFactInExternalDoc");
                     MessageBuilder.AppendFormat(StringFormat, Locator.Href.ElementId, Locator.Href.Url);
-                    validatingFragment.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
+                    this.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
                     return;
                 }
                 CurrentArc.FromItem = validatingFragment.GetFact(Locator.Href.ElementId);
@@ -355,7 +353,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     StringBuilder MessageBuilder = new StringBuilder();
                     string StringFormat = AssemblyResources.GetName("CannotFindFactForFootnoteArc");
                     MessageBuilder.AppendFormat(StringFormat, CurrentArc.Title, Locator.Href);
-                    validatingFragment.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
+                    this.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
                     return;
                 }
             }
@@ -365,7 +363,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("CannotFindFootnoteForFootnoteArc");
                 MessageBuilder.AppendFormat(StringFormat, CurrentArc.Title, CurrentArc.To);
-                validatingFragment.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
+                this.AddValidationError(new FootnoteArcValidationError(CurrentArc, MessageBuilder.ToString()));
                 return;
             }
         }
@@ -383,7 +381,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
             var validator = new FactValidator();
             foreach (Fact CurrentFact in validatingFragment.Facts)
             {
-                validator.Validate(validatingFragment, CurrentFact);
+                validator.Validate(validatingFragment, CurrentFact, this);
             }
             ValidateItemsReferencedInDefinitionArcRoles();
             ValidateSummationConcepts();
@@ -395,15 +393,11 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         //-------------------------------------------------------------------------------
         private void ValidateItemsReferencedInDefinitionArcRoles()
         {
-            foreach (var currentSchema in validatingFragment.Schemas.SchemaList)
+            foreach (var definitionLinkbaseDocument in validatingFragment.Taxonomy.DefinitionLinkbases)
             {
-                var currentDefinitionLinkbaseDocument = currentSchema.DefinitionLinkbase;
-                if (currentDefinitionLinkbaseDocument != null)
-                {
-                    foreach (DefinitionLink CurrentDefinitionLink in currentDefinitionLinkbaseDocument.DefinitionLinks)
-                        ValidateFactsReferencedInDefinitionArcRoles(CurrentDefinitionLink);
-                }
-            }
+				foreach( DefinitionLink CurrentDefinitionLink in definitionLinkbaseDocument.DefinitionLinks )
+					ValidateFactsReferencedInDefinitionArcRoles( CurrentDefinitionLink );
+			}
         }
 
         //-------------------------------------------------------------------------------
@@ -448,7 +442,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <param name="FactList">
         /// A collection of <see cref="Fact"/> objects defined in the fragment.
         /// </param>
-        private void ValidateEssenceAliasedFacts(DefinitionArc EssenceAliasDefinitionArc, FactCollection FactList)
+        private void ValidateEssenceAliasedFacts(DefinitionArc EssenceAliasDefinitionArc, IEnumerable<Fact> FactList)
         {
             Locator CurrentFromLocator = EssenceAliasDefinitionArc.FromLocator;
             if (CurrentFromLocator == null)
@@ -500,7 +494,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <param name="ToItemName">
         /// The name of the item that represents the "to" end of the essence alias relationship.
         /// </param>
-        private void ValidateEssenceAliasedFacts(Item FromItem, FactCollection FactList, string ToItemName)
+        private void ValidateEssenceAliasedFacts(Item FromItem, IEnumerable<Fact> FactList, string ToItemName)
         {
             foreach (Fact CurrentFact in FactList)
             {
@@ -537,7 +531,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                         var validationError = new ItemsValidationError(MessageBuilder.ToString());
                         validationError.AddItem(FromItem);
                         validationError.AddItem(ToItem);
-                        validatingFragment.AddValidationError(validationError);
+                        this.AddValidationError(validationError);
                         return;
                     }
                 }
@@ -551,7 +545,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 var validationError = new ItemsValidationError(MessageBuilder.ToString());
                 validationError.AddItem(FromItem);
                 validationError.AddItem(ToItem);
-                validatingFragment.AddValidationError(validationError);
+                this.AddValidationError(validationError);
                 return;
             }
             if (FromItem.UnitEquals(ToItem) == false)
@@ -562,7 +556,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 var validationError = new ItemsValidationError(MessageBuilder.ToString());
                 validationError.AddItem(FromItem);
                 validationError.AddItem(ToItem);
-                validatingFragment.AddValidationError(validationError);
+                this.AddValidationError(validationError);
                 return;
             }
 
@@ -587,7 +581,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 var validationError = new ItemsValidationError(MessageBuilder.ToString());
                 validationError.AddItem(FromItem);
                 validationError.AddItem(ToItem);
-                validatingFragment.AddValidationError(validationError);
+                this.AddValidationError(validationError);
                 return;
             }
         }
@@ -607,7 +601,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("NotEnoughToFactsInRequiresElementRelationship");
                 MessageBuilder.AppendFormat(StringFormat, CurrentFromLocator.HrefResourceId, CurrentToLocator.HrefResourceId);
-                validatingFragment.AddValidationError(new DefinitionArcValidationError(RequiresElementDefinitionArc, MessageBuilder.ToString()));
+                this.AddValidationError(new DefinitionArcValidationError(RequiresElementDefinitionArc, MessageBuilder.ToString()));
             }
         }
 
@@ -631,7 +625,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// </summary>
         private void ValidateSummationConcepts()
         {
-            var validator = new SummationConceptValidator(validatingFragment);
+            var validator = new SummationConceptValidator(validatingFragment, this);
             validator.Validate();
         }
 
@@ -639,7 +633,10 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         {
             var validator = new ContextValidator();
             foreach (var currentContext in validatingFragment.Contexts)
-                validator.Validate(validatingFragment, currentContext);
+                validator.Validate(validatingFragment, currentContext, this);
         }
-    }
+		public void AddValidationError(ValidationError validationError) {
+			this.thisValidationErrors.AddValidationError( validationError );
+		}
+	}
 }

@@ -9,39 +9,27 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
     /// </summary>
     public class SummationConceptValidator
     {
-        /// <summary>
+		private readonly IValidationErrorsList thisValidationErrors;
+		/// <summary>
         /// The XBRL fragment whose summation concepts have been validated by the validator.
         /// </summary>
-        public XbrlFragment ValidatedFragment { get; private set; }
+        private IXbrlFragment ValidatedFragment { get; set; }
 
-        internal SummationConceptValidator(XbrlFragment fragment)
-        {
-            this.ValidatedFragment = fragment;
-        }
+        internal SummationConceptValidator(IXbrlFragment fragment, IValidationErrorsList validationErrors) {
+			this.thisValidationErrors = validationErrors;
+			this.ValidatedFragment = fragment;
+		}
 
         /// <summary>
         /// Validates all of the summation concepts in this fragment.
         /// </summary>
         public void Validate()
         {
-            foreach (var CurrentSchema in this.ValidatedFragment.Schemas.SchemaList)
-                Validate(CurrentSchema);
-        }
-
-        /// <summary>
-        /// Validates all summation concepts defined in the current schema.
-        /// </summary>
-        /// <param name="CurrentSchema">
-        /// The schema whose containing summation concepts should be validated.
-        /// </param>
-        private void Validate(XbrlSchema CurrentSchema)
-        {
-            var calculationLinkbase = CurrentSchema.CalculationLinkbase;
-            if (calculationLinkbase == null)
-                return;
-            foreach (CalculationLink CurrentCalculationLink in calculationLinkbase.CalculationLinks)
-                Validate(CurrentCalculationLink);
-        }
+            foreach (var calculationLinkbase in this.ValidatedFragment.Taxonomy.CalculationLinkbases) {
+				foreach( CalculationLink CurrentCalculationLink in calculationLinkbase.CalculationLinks )
+					this.Validate( CurrentCalculationLink );
+			}
+		}
 
         /// <summary>
         /// Validates all summation concepts found in the current calculation link.
@@ -84,7 +72,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <param name="FactList">
         /// The collection of items that should be searched when looking for summation or contributing items.
         /// </param>
-        private void ValidateSummationConcept(CalculationLink CurrentCalculationLink, SummationConcept CurrentSummationConcept, FactCollection FactList)
+        private void ValidateSummationConcept(CalculationLink CurrentCalculationLink, SummationConcept CurrentSummationConcept, IEnumerable<Fact> FactList)
         {
             Element SummationConceptElement = LocateElement(CurrentSummationConcept.SummationConceptLocator);
             Item SummationConceptItem = LocateItem(SummationConceptElement, FactList);
@@ -164,7 +152,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     var MessageBuilder = new StringBuilder();
                     string StringFormat = AssemblyResources.GetName("SummationConceptUsesContributingItemWithPrecisionZero");
                     MessageBuilder.AppendFormat(StringFormat, SummationConceptItem.Name);
-                    ValidatedFragment.AddValidationError(new SummationConceptValidationError(CurrentSummationConcept, MessageBuilder.ToString()));
+					thisValidationErrors.AddValidationError(new SummationConceptValidationError(CurrentSummationConcept, MessageBuilder.ToString()));
                     return;
                 }
                 ContributingConceptRoundedValueTotal = SummationConceptItem.Round(ContributingConceptRoundedValueTotal);
@@ -173,7 +161,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     var MessageBuilder = new StringBuilder();
                     string StringFormat = AssemblyResources.GetName("SummationConceptError");
                     MessageBuilder.AppendFormat(StringFormat, SummationConceptItem.Name, SummationConceptRoundedValue, ContributingConceptRoundedValueTotal);
-                    ValidatedFragment.AddValidationError(new SummationConceptValidationError(CurrentSummationConcept, MessageBuilder.ToString()));
+					thisValidationErrors.AddValidationError(new SummationConceptValidationError(CurrentSummationConcept, MessageBuilder.ToString()));
                     return;
                 }
             }
@@ -221,7 +209,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// </remarks>
         private Element LocateElement(Locator ElementLocator)
         {
-            return this.ValidatedFragment.Schemas.LocateElement(ElementLocator);
+            return this.ValidatedFragment.Taxonomy.LocateElement(ElementLocator);
         }
 
         /// <summary>
@@ -258,7 +246,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// This method should most likely be moved into a class which wraps <see cref="Item"/>
         /// collections with a value-added wrapper class.
         /// </remarks>
-        private Item LocateItem(Element ItemElement, FactCollection FactList)
+        private Item LocateItem(Element ItemElement, IEnumerable<Fact> FactList)
         {
             if (ItemElement == null)
                 return null;
@@ -310,7 +298,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// This method should most likely be moved into a class which wraps <see cref="Item"/>
         /// collections with a value-added wrapper class.
         /// </remarks>
-        private List<Item> LocateItems(Element ItemElement, FactCollection FactList)
+        private List<Item> LocateItems(Element ItemElement, IEnumerable<Fact> FactList)
         {
             var ItemList = new List<Item>();
             if (ItemElement != null)

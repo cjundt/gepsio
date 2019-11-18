@@ -14,13 +14,15 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
     /// </remarks>
     internal class FactValidator
     {
-        private XbrlFragment validatingFragment;
+        private IXbrlFragment validatingFragment;
         private Fact validatingFact;
         private Item validatingItem;
+		private IValidationErrorsList thisValidationErrors;
 
-        internal void Validate(XbrlFragment fragment, Fact fact)
+		internal void Validate(IXbrlFragment fragment, Fact fact, IValidationErrorsList validationErrors)
         {
-            this.validatingFragment = fragment;
+			this.thisValidationErrors = validationErrors;
+			this.validatingFragment = fragment;
             this.validatingFact = fact;
             ValidateAttributes();
             this.validatingItem = fact as Item;
@@ -47,7 +49,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// </param>
         private void ValidateAttribute(IAttribute currentAttribute)
         {
-            var attributeType = validatingFragment.Schemas.GetAttributeType(currentAttribute);
+            var attributeType = validatingFragment.Taxonomy.GetAttributeType(currentAttribute);
             if(attributeType != null)
             {
                 if(attributeType.CanConvert(currentAttribute.Value) == false)
@@ -55,7 +57,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                     string MessageFormat = AssemblyResources.GetName("AttributeTextNotConvertable");
                     StringBuilder MessageBuilder = new StringBuilder();
                     MessageBuilder.AppendFormat(MessageFormat, validatingFact.Id, currentAttribute.Value);
-                    this.validatingFragment.AddValidationError(new FactValidationError(validatingFact, MessageBuilder.ToString()));
+                    this.thisValidationErrors.AddValidationError(new FactValidationError(validatingFact, MessageBuilder.ToString()));
                 }
             }
         }
@@ -102,7 +104,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("RatioFoundInMonetaryItemUnit");
                 MessageBuilder.AppendFormat(StringFormat, validatingItem.Name, validatingItem.UnitRef.Id);
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
                 return;
             }
 
@@ -119,7 +121,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("WrongMeasureNamespaceForMonetaryFact");
                 MessageBuilder.AppendFormat(StringFormat, validatingItem.Name, validatingItem.UnitRef.Id, "unspecified");
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
                 return;
             }
             if ((Uri.Length > 0) && (Uri.Equals(XbrlDocument.XbrlIso4217NamespaceUri) == false))
@@ -127,7 +129,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("WrongMeasureNamespaceForMonetaryFact");
                 MessageBuilder.AppendFormat(StringFormat, validatingItem.Name, validatingItem.UnitRef.Id, validatingItem.UnitRef.MeasureQualifiedNames[0].NamespaceUri);
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
                 return;
             }
             validatingItem.UnitRef.ValidateISO4217Code(validatingItem.UnitRef.MeasureQualifiedNames[0].LocalName);
@@ -136,7 +138,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("UnsupportedISO4217CodeForUnitMeasure");
                 MessageBuilder.AppendFormat(StringFormat, validatingItem.Name, validatingItem.UnitRef.Id, validatingItem.UnitRef.MeasureQualifiedNames[0].LocalName);
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
             }
         }
 
@@ -160,7 +162,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("PureItemTypeUnitLocalNameNotPure");
                 MessageBuilder.AppendFormat(StringFormat, validatingItem.Name, UnitReference.Id, UnitMeasureLocalName);
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
             }
         }
 
@@ -184,7 +186,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("SharesItemTypeUnitLocalNameNotShares");
                 MessageBuilder.AppendFormat(StringFormat, validatingItem, UnitReference.Id, UnitMeasureLocalName);
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
                 return;
             }
             var SharesNamespaceCorrect = true;
@@ -198,7 +200,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 StringBuilder MessageBuilder = new StringBuilder();
                 string StringFormat = AssemblyResources.GetName("WrongMeasureNamespaceForSharesFact");
                 MessageBuilder.AppendFormat(StringFormat, validatingItem.Name, UnitReference.Id, Uri);
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageBuilder.ToString()));
             }
         }
 
@@ -220,14 +222,14 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 string MessageFormat = AssemblyResources.GetName("NumericFactWithoutSpecifiedPrecisionOrDecimals");
                 StringBuilder MessageFormatBuilder = new StringBuilder();
                 MessageFormatBuilder.AppendFormat(MessageFormat, validatingItem.Name, validatingItem.Id);
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageFormatBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageFormatBuilder.ToString()));
             }
             if ((validatingItem.PrecisionSpecified == true) && (validatingItem.DecimalsSpecified == true))
             {
                 string MessageFormat = AssemblyResources.GetName("NumericFactWithSpecifiedPrecisionAndDecimals");
                 StringBuilder MessageFormatBuilder = new StringBuilder();
                 MessageFormatBuilder.AppendFormat(MessageFormat, validatingItem.Name, validatingItem.Id);
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageFormatBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageFormatBuilder.ToString()));
             }
         }
 
@@ -238,7 +240,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
                 string MessageFormat = AssemblyResources.GetName("NilNumericFactWithSpecifiedPrecisionOrDecimals");
                 StringBuilder MessageFormatBuilder = new StringBuilder();
                 MessageFormatBuilder.AppendFormat(MessageFormat, validatingItem.Name, validatingItem.Id);
-                validatingFragment.AddValidationError(new ItemValidationError(validatingItem, MessageFormatBuilder.ToString()));
+				thisValidationErrors.AddValidationError(new ItemValidationError(validatingItem, MessageFormatBuilder.ToString()));
             }
         }
     }

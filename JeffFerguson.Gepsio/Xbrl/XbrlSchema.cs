@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Xml.Schema;
 
 using String = System.String;
 
@@ -384,12 +385,15 @@ namespace JeffFerguson.Gepsio
 
         //-------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------
-        private void ReadElements()
-        {
+        private void ReadElements() {
+            var validator = new XbrlSchemaValidator( this, this.ValidationHandler );
             foreach (var CurrentEntry in thisXmlSchemaSet.GlobalElements)
             {
                 ISchemaElement CurrentElement = CurrentEntry.Value as ISchemaElement;
-                this.Elements.Add(new Element(this, CurrentElement));
+                var element = new Element(this, CurrentElement);
+                validator.ValidateElement( element );
+
+                this.Elements.Add(element);
                 thisLookupElements = null;
             }
         }

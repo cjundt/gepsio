@@ -2,6 +2,9 @@
 using JeffFerguson.Gepsio.Xml.Interfaces;
 using System.Text;
 using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
 {
@@ -16,7 +19,6 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
     {
         private IXbrlFragment validatingFragment;
         private Fact validatingFact;
-        private Item validatingItem;
 		private IValidationHandler thisValidationErrors;
 
 		internal void Validate(IXbrlFragment fragment, Fact fact, IValidationHandler validationErrors)
@@ -25,9 +27,23 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
 			this.validatingFragment = fragment;
             this.validatingFact = fact;
             ValidateAttributes();
-            this.validatingItem = fact as Item;
-            if (validatingItem != null)
-                ValidateItem();
+            if (fact is Item validatingItem)
+                ValidateItem(validatingItem);
+            else if (fact is Tuple tuple)
+                ValidateTuple(tuple);
+        }
+        private void ValidateTuple(Tuple tuple) {
+            Debug.Assert( tuple != null, nameof(tuple) + " != null" );
+
+            /* Attribute uses [XML Schema Structures] (see specifically http://www.w3.org/TR/xmlschema-1/#section-XML-Representation-of-Attribute-Use-Components)
+             in Tuple declarations MUST NOT reference attributes from any of the following namespaces: 
+             http://www.xbrl.org/2003/instance, http://www.xbrl.org/2003/linkbase, 
+             http://www.xbrl.org/2003/XLink, http://www.w3.org/1999/xlink. 
+             (See : 104.10 Tuples should not have attributes in XBRL spec defined namespaces.) */
+            var rx = new Regex( "^http://(www.xbrl.org/2003/(instance|linkbase|XLink)|www.w3.org/1999/xlink)$" );
+            if( tuple.thisFactNode.Attributes.Cast< IAttribute >( ).Any( attr => rx.IsMatch( attr.NamespaceURI ) ) ) {
+                this.thisValidationErrors.AddValidationError(new FactValidationError(validatingFact, "Tuples should not have attributes in XBRL spec defined namespaces."));
+            }
         }
 
         /// <summary>
@@ -71,26 +87,27 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         // types require that their items have units that are part of the ISO 4217 namespace
         // (http://www.xbrl.org/2003/iso4217). This is checked by the datatype.
         //------------------------------------------------------------------------------------
-        private void ValidateItem()
-        {
+        private void ValidateItem(Item validatingItem) {
+            Debug.Assert( validatingItem != null, nameof(validatingItem) + " != null" );
+
             if (validatingItem.IsMonetary())
-                ValidateMonetaryType();
+                ValidateMonetaryType(validatingItem);
             else if (validatingItem.IsShares())
-                ValidateSharesType();
+                ValidateSharesType(validatingItem);
             else if (validatingItem.IsDecimal())
-                ValidateDecimalType();
+                ValidateDecimalType(validatingItem);
             else if (validatingItem.IsPure())
             {
 
                 // Pure item types are derived from restriction, so run the pure validation
                 // as well as the decimal validation.
 
-                ValidatePureType();
-                ValidateDecimalType();
+                ValidatePureType(validatingItem);
+                ValidateDecimalType(validatingItem);
             }
         }
 
-        private void ValidateMonetaryType()
+        private void ValidateMonetaryType(Item validatingItem)
         {
             if (validatingItem.UnitRef == null)
                 return;
@@ -145,7 +162,8 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <summary>
         /// Validate pure item types.
         /// </summary>
-        private void ValidatePureType()
+        /// <param name="ValidatingItem"></param>
+        private void ValidatePureType(Item validatingItem)
         {
             string UnitMeasureLocalName = string.Empty;
             Unit UnitReference = validatingItem.UnitRef;
@@ -169,7 +187,8 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <summary>
         /// Validate shares item types.
         /// </summary>
-        private void ValidateSharesType()
+        /// <param name="ValidatingItem"></param>
+        private void ValidateSharesType(Item validatingItem)
         {
             bool SharesMeasureFound = true;
             string UnitMeasureLocalName = string.Empty;
@@ -207,15 +226,16 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <summary>
         /// Validate decimal item types.
         /// </summary>
-        private void ValidateDecimalType()
+        /// <param name="ValidatingItem"></param>
+        private void ValidateDecimalType(Item validatingItem)
         {
             if (validatingItem.NilSpecified == true)
-                ValidateNilDecimalType();
+                ValidateNilDecimalType(validatingItem);
             else
-                ValidateNonNilDecimalType();
+                ValidateNonNilDecimalType(validatingItem);
         }
 
-        private void ValidateNonNilDecimalType()
+        private void ValidateNonNilDecimalType(Item validatingItem)
         {
             if ((validatingItem.PrecisionSpecified == false) && (validatingItem.DecimalsSpecified == false))
             {
@@ -233,7 +253,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
             }
         }
 
-        private void ValidateNilDecimalType()
+        private void ValidateNilDecimalType(Item validatingItem)
         {
             if ((validatingItem.PrecisionSpecified == true) || (validatingItem.DecimalsSpecified == true))
             {

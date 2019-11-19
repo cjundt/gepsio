@@ -97,9 +97,9 @@ namespace JeffFerguson.Test.Gepsio
 			Assert.IsTrue( this._failedTest == 0 );
 		}
 		[DataTestMethod]
-		[DataRow("307", "V-3")]
-		[DataRow("307", "V-2")]
-		[DataRow("301", "V-4")]
+		[DataRow("104", "V-10")]
+		[DataRow("105", "V-01")]
+		[DataRow("105", "V-02")]
 		[Description("XBRL-CONF-2014-12-10 specified test case variation")]
 		[TestCategory("Debug")]
 		public void execute_specified_test_case_variation(string caseId, string variationId)

@@ -41,5 +41,6 @@ namespace JeffFerguson.Gepsio.Xml.Interfaces
         /// The attribute in the list with the supplied name.
         /// </returns>
         IAttribute FindAttribute(string name);
+        IAttribute FindAttribute(string name, string namespaceUri);
     }
 }

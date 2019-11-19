@@ -1,5 +1,6 @@
 using JeffFerguson.Gepsio.Xml.Interfaces;
 using System;
+using System.Diagnostics;
 using System.Text;
 
 namespace JeffFerguson.Gepsio.Xsd
@@ -119,11 +120,16 @@ namespace JeffFerguson.Gepsio.Xsd
             get;
             private set;
         }
+        public string Balance { get; }
+        public bool IsMonetaryItemType => TypeName.Name == "monetaryItemType" && TypeName.Namespace == NamespaceUri.XbrlNamespaceUri;
 
         //------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------
-        internal Element(XbrlSchema Schema, INode ElementNode)
-        {
+        internal Element(XbrlSchema Schema, INode ElementNode) {
+            Debug.Assert( ElementNode != null, nameof(ElementNode) + " != null" );
+
+            this.Balance = ElementNode.GetAttributeValue( NamespaceUri.XbrlNamespaceUri, "balance" );
+
             throw new NotSupportedException("no more hardcoded parsing of schema elements!");
         }
 
@@ -133,6 +139,7 @@ namespace JeffFerguson.Gepsio.Xsd
         {
             this.Schema = Schema;
             thisSchemaElement = SchemaElement;
+            this.Balance = SchemaElement.UnhandledAttributes.FindAttribute( "balance", NamespaceUri.XbrlNamespaceUri )?.Value;
             this.Id = SchemaElement.Id;
             this.Name = SchemaElement.Name;
             this.IsAbstract = SchemaElement.IsAbstract;

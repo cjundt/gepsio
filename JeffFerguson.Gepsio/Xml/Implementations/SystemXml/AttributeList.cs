@@ -68,5 +68,8 @@ namespace JeffFerguson.Gepsio.Xml.Implementation.SystemXml
             }
             return null;
         }
+        public IAttribute FindAttribute(string name, string namespaceUri) {
+            return thisAttributeList?.Find( attr => attr.LocalName == name && attr.NamespaceURI == namespaceUri );
+        }
     }
 }

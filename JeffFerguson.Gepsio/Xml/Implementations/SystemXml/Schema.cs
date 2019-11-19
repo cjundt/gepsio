@@ -57,11 +57,12 @@ namespace JeffFerguson.Gepsio.Xml.Implementation.SystemXml
             try
             {
 				var settings = new XmlReaderSettings { XmlResolver = Container.Resolve<XmlResolver>( ) };
+                var rc = true;
 				using( var schemaReader = XmlTextReader.Create( path, settings ) ) {
-					this.thisSchema = XmlSchema.Read(schemaReader, null);
+					this.thisSchema = XmlSchema.Read(schemaReader, (Sender, Args) => rc = false);
 				}
 
-				return true;
+                return rc;
             }
             catch(XmlSchemaException)
             {

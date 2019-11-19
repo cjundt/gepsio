@@ -18,6 +18,12 @@ namespace JeffFerguson.Gepsio
     /// </summary>
     public class XbrlSchema
     {
+        internal static XbrlSchema Create(string root, string SchemaFilename, string BaseDirectory, IValidationHandler validationHandler) {
+            var schema = new XbrlSchema( root, SchemaFilename, BaseDirectory ){ ValidationHandler = validationHandler };
+            schema.Load( root, SchemaFilename );
+
+            return schema;
+        }
         private IDocument thisSchemaDocument;
         private ISchema thisXmlSchema;
         private ISchemaSet thisXmlSchemaSet;
@@ -145,26 +151,22 @@ namespace JeffFerguson.Gepsio
 
         //-------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------
-        internal XbrlSchema(string root, string SchemaFilename, string BaseDirectory)
+        private XbrlSchema(string root, string SchemaFilename, string BaseDirectory)
         {
-            this.SchemaReferencePath = GetFullSchemaPath(SchemaFilename, BaseDirectory);
+            this.SchemaReferencePath = GetFullSchemaPath(root, SchemaFilename, BaseDirectory);
             this.LoadPath = this.SchemaReferencePath;
-            try
-            {
-                if (ReadAndCompile(this.SchemaReferencePath) == false)
+        }
+        private void Load(string root, string SchemaFilename) {
+            try {
+                if( this.ReadAndCompile( this.SchemaReferencePath ) == false )
                     return;
-            }
-            catch (FileNotFoundException fnfEx)
-            {
-                StringBuilder MessageBuilder = new StringBuilder();
-                string StringFormat = AssemblyResources.GetName("FileNotFoundDuringSchemaCreation");
-                MessageBuilder.AppendFormat(StringFormat, this.SchemaReferencePath);
-                this.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString(), fnfEx));
+            } catch( FileNotFoundException fnfEx ) {
+                StringBuilder MessageBuilder = new StringBuilder( );
+                string StringFormat = AssemblyResources.GetName( "FileNotFoundDuringSchemaCreation" );
+                MessageBuilder.AppendFormat( StringFormat, this.SchemaReferencePath );
+                this.AddValidationError( new SchemaValidationError( this, MessageBuilder.ToString( ), fnfEx ) );
                 return;
-            }
-            catch (WebException webEx)
-            {
-
+            } catch( WebException webEx ) {
                 // Check to see if we got an HTTP 404 back from an attempt to open a schema up from a
                 // URL. If we did, check to see if the schema is available locally. Some taxonomies are
                 // specified through URLs that don't actually exist in a physical form but just appear
@@ -178,40 +180,38 @@ namespace JeffFerguson.Gepsio
                 var localSchemaAvailable = false;
                 var schemaLocalPath = string.Empty;
                 var webResponse = webEx.Response as HttpWebResponse;
-                if(webResponse == null || webResponse.StatusCode == HttpStatusCode.NotFound || webResponse.StatusCode == HttpStatusCode.Forbidden)
-                {
+                if( webResponse == null || webResponse.StatusCode == HttpStatusCode.NotFound || webResponse.StatusCode == HttpStatusCode.Forbidden ) {
                     schemaLocalPath = this.BuildSchemaPathLocalToFragment( SchemaFilename, root );
-                    try
-                    {
-                        localSchemaAvailable = ReadAndCompile(schemaLocalPath);
-                    }
-                    catch(FileNotFoundException)
-                    {
+                    try {
+                        localSchemaAvailable = this.ReadAndCompile( schemaLocalPath );
+                    } catch( FileNotFoundException ) {
                         localSchemaAvailable = false;
                     }
                 }
-                if (localSchemaAvailable == false)
-                {
-                    StringBuilder MessageBuilder = new StringBuilder();
-                    string StringFormat = AssemblyResources.GetName("WebExceptionThrownDuringSchemaCreation");
-                    MessageBuilder.AppendFormat(StringFormat, this.SchemaReferencePath);
-                    this.AddValidationError(new SchemaValidationError(this, MessageBuilder.ToString(), webEx));
+
+                if( localSchemaAvailable == false ) {
+                    StringBuilder MessageBuilder = new StringBuilder( );
+                    string StringFormat = AssemblyResources.GetName( "WebExceptionThrownDuringSchemaCreation" );
+                    MessageBuilder.AppendFormat( StringFormat, this.SchemaReferencePath );
+                    this.AddValidationError( new SchemaValidationError( this, MessageBuilder.ToString( ), webEx ) );
                     return;
                 }
+
                 this.LoadPath = schemaLocalPath;
             }
-            thisSchemaDocument = Container.Resolve<IDocument>();
-            this.thisLinkbaseDocuments = new LinkbaseDocumentCollection();
-            this.RoleTypes = new List<RoleType>();
-            thisSchemaDocument.Load(this.LoadPath);
-            this.NamespaceManager = Container.Resolve<INamespaceManager>();
-            this.NamespaceManager.Document = thisSchemaDocument;
-            this.NamespaceManager.AddNamespace("schema", XbrlSchema.XmlSchemaNamespaceUri);
-            ReadSchemaNode();
-            ReadSimpleTypes();
-            ReadComplexTypes();
-            ReadElements();
-            LookForAnnotations();
+
+            this.thisSchemaDocument = Container.Resolve< IDocument >( );
+            this.thisLinkbaseDocuments = new LinkbaseDocumentCollection( );
+            this.RoleTypes = new List< RoleType >( );
+            this.thisSchemaDocument.Load( this.LoadPath );
+            this.NamespaceManager = Container.Resolve< INamespaceManager >( );
+            this.NamespaceManager.Document = this.thisSchemaDocument;
+            this.NamespaceManager.AddNamespace( "schema", XbrlSchema.XmlSchemaNamespaceUri );
+            this.ReadSchemaNode( );
+            this.ReadSimpleTypes( );
+            this.ReadComplexTypes( );
+            this.ReadElements( );
+            this.LookForAnnotations( );
         }
         public void AddValidationError(ValidationError error) {
             this.ValidationHandler?.AddValidationError( error );
@@ -324,7 +324,7 @@ namespace JeffFerguson.Gepsio
 
         //-------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------
-        private string GetFullSchemaPath(string SchemaFilename, string BaseDirectory)
+        private string GetFullSchemaPath(string root, string SchemaFilename, string BaseDirectory)
         {
 
             // The first check is to see whether or not the "filename" is actually an HTTP-based
@@ -337,7 +337,7 @@ namespace JeffFerguson.Gepsio
                 return SchemaFilename;
 
             // At this point, we're confident that we have an actual filename.
-            return Path.Combine( BaseDirectory, SchemaFilename );
+            return Path.Combine( root, BaseDirectory, SchemaFilename );
         }
 
         /// <summary>

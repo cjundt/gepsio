@@ -313,8 +313,8 @@ namespace JeffFerguson.Gepsio
                 StandardNamespaceSchemaLocationDictionary.TryGetValue(targetNamespace, out schemaLocation);
                 if (string.IsNullOrEmpty(schemaLocation) == true)
                     return null;
-				var newSchema = new XbrlSchema( root, schemaLocation, string.Empty ) { ValidationHandler = parentFragment };
-				newSchema.TargetNamespaceAlias = targetNamespace;
+				var newSchema = XbrlSchema.Create( root, schemaLocation, string.Empty, parentFragment);
+                newSchema.TargetNamespaceAlias = targetNamespace;
                 this.Add(newSchema);
                 foundSchema = this.FindSchema(targetNamespace);
             }

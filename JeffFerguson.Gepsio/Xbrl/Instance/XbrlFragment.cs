@@ -333,8 +333,8 @@ namespace JeffFerguson.Gepsio
 		}
 
 		private void ProcessSchemaNamespaceAndLocation( string schemaNamespace, string schemaLocation ) {
-			var newSchema = new XbrlSchema( this.Document.Path, schemaLocation, string.Empty ){ ValidationHandler = this };
-			if( newSchema.SchemaRootNode != null )
+			var newSchema = XbrlSchema.Create( this.Document.Path, schemaLocation, string.Empty, this);
+            if( newSchema.SchemaRootNode != null )
 				AddSchemaToSchemaList( newSchema );
 		}
 
@@ -398,8 +398,8 @@ namespace JeffFerguson.Gepsio
 		private void ReadTaxonomySchemaReference( INode SchemaRefNode ) {
 			string HrefAttributeValue = SchemaRefNode.GetAttributeValue( Xlink.XlinkNode.xlinkNamespace, "href" );
 			string Base = SchemaRefNode.GetAttributeValue( NamespaceUri.XmlNamespaceUri, "base" );
-			var newSchema = new XbrlSchema( this.Document.Path, HrefAttributeValue, Base ){ ValidationHandler = this };
-			if( newSchema.SchemaRootNode != null )
+			var newSchema = XbrlSchema.Create( this.Document.Path, HrefAttributeValue, Base, this);
+            if( newSchema.SchemaRootNode != null )
 				AddSchemaToSchemaList( newSchema );
 		}
 

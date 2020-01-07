@@ -6,6 +6,9 @@ using JeffFerguson.Gepsio.Xml.Interfaces;
 using JeffFerguson.Gepsio.Xsd;
 
 namespace JeffFerguson.Gepsio {
+	/// <summary>
+	/// Taxonomy interface.
+	/// </summary>
 	public interface ITaxonomy {
 		/// <summary>
 		/// List of all calculation linkbases defined in known schemas of current taxonomy.

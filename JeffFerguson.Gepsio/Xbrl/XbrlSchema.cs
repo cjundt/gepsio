@@ -59,6 +59,9 @@ namespace JeffFerguson.Gepsio
         /// The target namespace of the schema.
         /// </summary>
         public string TargetNamespace { get; private set; }
+        /// <summary>
+        /// List of target namespaces.
+        /// </summary>
         public IEnumerable< string > TargetNamespaces => this.thisXmlSchemaSet.Schemas(  ).Select( s=>s.TargetNamespace );
 
         /// <summary>
@@ -214,9 +217,16 @@ namespace JeffFerguson.Gepsio
             this.ReadElements( );
             this.LookForAnnotations( );
         }
+        /// <summary>
+        /// Add a validation error to the validation errors list.
+        /// </summary>
+        /// <param name="error"></param>
         public void AddValidationError(ValidationError error) {
             this.ValidationHandler?.AddValidationError( error );
         }
+        /// <summary>
+        /// Validation handler.
+        /// </summary>
         public IValidationHandler ValidationHandler { get; set; }
 
         /// <summary>

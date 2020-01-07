@@ -33,6 +33,9 @@ namespace JeffFerguson.Gepsio.Xml.Implementation.SystemXml {
 			this._populate = populate;
 		}
 
+		/// <summary>
+		/// Credentials.
+		/// </summary>
 		public override ICredentials Credentials {
 			set {
 				this._credentials = value;
@@ -40,6 +43,13 @@ namespace JeffFerguson.Gepsio.Xml.Implementation.SystemXml {
 			}
 		}
 
+		/// <summary>
+		/// Get entity from cache.
+		/// </summary>
+		/// <param name="absoluteUri"></param>
+		/// <param name="role"></param>
+		/// <param name="ofObjectToReturn"></param>
+		/// <returns></returns>
 		public override object GetEntity( Uri absoluteUri, string role, Type ofObjectToReturn ) {
 			if( absoluteUri == null ) {
 				throw new ArgumentNullException( "absoluteUri" );

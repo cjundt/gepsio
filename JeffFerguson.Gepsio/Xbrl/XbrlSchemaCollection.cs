@@ -15,9 +15,18 @@ namespace JeffFerguson.Gepsio
     /// multiple schemas to find information.
     /// </remarks>
     public class XbrlSchemaCollection : IEnumerable<XbrlSchema>, ITaxonomy {
-		public List<XbrlSchema> SchemaList { get; }
-		public IEnumerable< CalculationLinkbaseDocument > CalculationLinkbases => this.SchemaList.Select( s => s.CalculationLinkbase ).Where( clb => clb != null );
-		public IEnumerable< DefinitionLinkbaseDocument > DefinitionLinkbases => this.SchemaList.Select( s => s.DefinitionLinkbase ).Where( dlb => dlb != null );
+		/// <summary>
+        /// List of schemas.
+        /// </summary>
+        public List<XbrlSchema> SchemaList { get; }
+		/// <summary>
+        /// Calculation linkbase documents.
+        /// </summary>
+        public IEnumerable< CalculationLinkbaseDocument > CalculationLinkbases => this.SchemaList.Select( s => s.CalculationLinkbase ).Where( clb => clb != null );
+		/// <summary>
+        /// Definition linkbase documents.
+        /// </summary>
+        public IEnumerable< DefinitionLinkbaseDocument > DefinitionLinkbases => this.SchemaList.Select( s => s.DefinitionLinkbase ).Where( dlb => dlb != null );
 		bool ITaxonomy.IsDefined => this.SchemaList.Count > 0;
 
         private static Dictionary<string, string> StandardNamespaceSchemaLocationDictionary;

@@ -174,6 +174,10 @@ namespace JeffFerguson.Gepsio
 			Validated?.Invoke( this, null );
 		}
 
+		/// <summary>
+		/// Add a validation error to the validation errors list.
+		/// </summary>
+		/// <param name="validationError"></param>
 		public void AddValidationError( ValidationError validationError ) {
 			this.ValidationErrors.Add( validationError );
 		}
@@ -488,6 +492,11 @@ namespace JeffFerguson.Gepsio
 
 		//-------------------------------------------------------------------------------
 		//-------------------------------------------------------------------------------
+		/// <summary>
+		/// Does the url reference a fragement document ?
+		/// </summary>
+		/// <param name="Href"></param>
+		/// <returns></returns>
 		public bool UrlReferencesFragmentDocument( HyperlinkReference Href ) {
 			if( Href.UrlSpecified == false )
 				return false;

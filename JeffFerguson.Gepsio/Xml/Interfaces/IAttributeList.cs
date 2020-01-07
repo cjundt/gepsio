@@ -41,6 +41,18 @@ namespace JeffFerguson.Gepsio.Xml.Interfaces
         /// The attribute in the list with the supplied name.
         /// </returns>
         IAttribute FindAttribute(string name);
+        /// <summary>
+        /// Finds an attribute with the given name.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the attribute to be returned.
+        /// </param>
+        /// <param name="namespaceUri">
+        /// The namespace of the attribute to be returned.
+        /// </param>
+        /// <returns>
+        /// The attribute in the list with the supplied name.
+        /// </returns>
         IAttribute FindAttribute(string name, string namespaceUri);
     }
 }

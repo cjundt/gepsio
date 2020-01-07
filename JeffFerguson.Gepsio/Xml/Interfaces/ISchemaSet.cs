@@ -48,6 +48,10 @@ namespace JeffFerguson.Gepsio.Xml.Interfaces
         /// Compiles the schema set.
         /// </summary>
         void Compile();
-		IEnumerable< XmlSchema > Schemas( );
+		/// <summary>
+        /// List of the schemas in the schema set.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable< XmlSchema > Schemas( );
 	}
 }

@@ -86,7 +86,12 @@ namespace JeffFerguson.Gepsio.IoC
             var implementationType = FindTypeWithInterfaceImplementation<TInterface>();
             registeredTypes.Add(typeof(TInterface), implementationType);
         }
-		public static void RegisterInstance< TInterface >( object instance ) {
+		/// <summary>
+        /// Register an instance objet implementing specified interface.
+        /// </summary>
+        /// <typeparam name="TInterface"></typeparam>
+        /// <param name="instance"></param>
+        public static void RegisterInstance< TInterface >( object instance ) {
 			Debug.Assert( registeredInstances != null, nameof(registeredInstances) + " != null" );
 
 			var type = typeof(TInterface);

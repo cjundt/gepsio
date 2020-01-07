@@ -120,7 +120,13 @@ namespace JeffFerguson.Gepsio.Xsd
             get;
             private set;
         }
+        /// <summary>
+        /// Balance.
+        /// </summary>
         public string Balance { get; }
+        /// <summary>
+        /// Is the element of MonetaryItem type.
+        /// </summary>
         public bool IsMonetaryItemType => TypeName.Name == "monetaryItemType" && TypeName.Namespace == NamespaceUri.XbrlNamespaceUri;
 
         //------------------------------------------------------------------------------------

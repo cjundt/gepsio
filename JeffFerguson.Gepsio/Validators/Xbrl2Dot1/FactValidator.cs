@@ -162,7 +162,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <summary>
         /// Validate pure item types.
         /// </summary>
-        /// <param name="ValidatingItem"></param>
+        /// <param name="validatingItem"></param>
         private void ValidatePureType(Item validatingItem)
         {
             string UnitMeasureLocalName = string.Empty;
@@ -187,7 +187,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <summary>
         /// Validate shares item types.
         /// </summary>
-        /// <param name="ValidatingItem"></param>
+        /// <param name="validatingItem"></param>
         private void ValidateSharesType(Item validatingItem)
         {
             bool SharesMeasureFound = true;
@@ -226,7 +226,7 @@ namespace JeffFerguson.Gepsio.Validators.Xbrl2Dot1
         /// <summary>
         /// Validate decimal item types.
         /// </summary>
-        /// <param name="ValidatingItem"></param>
+        /// <param name="validatingItem"></param>
         private void ValidateDecimalType(Item validatingItem)
         {
             if (validatingItem.NilSpecified == true)
